@@ -57,28 +57,40 @@ class codespanview(APIView):
         data = r.text
         soup = BeautifulSoup(data, 'html.parser')
         counter = 0
+        varForCombiningModules = []
         for link in soup.find_all('h3', class_='r'):
             test = link.a.get('href').split('q=')[1].split('&')[0]
             Id = 'id' + str(counter)
             counter = counter + 1
             resultedUrl2[Id] = test
+            varForCombiningModules.append(test)
             # resultedUrl2.append(test)
+        results = []
+        methodUsed = []
+        for url in varForCombiningModules:
+            Query = url
+            r = requests.get(Query)
+            data = r.text
+            soup = BeautifulSoup(data, 'html.parser')
+            if(len(soup.find_all('pre'))>0):
+                content = []
+                for c in soup.find_all('pre'):
+                    content.append(c.text)
+                results.append(content)
+                methodUsed.append(1)
+                # print("loop 1")
+            elif(soup.pre is not None):
+                if(len(soup.pre.get_text().split('\n'))>0):
+                    results.append(soup.pre.get_text().split('\n'))
+                    methodUsed.append(2)
+                    # print("loop 2")
+            elif(len(soup.find_all('code'))>0):
+                content = []
+                for c in soup.find_all('code'):
+                    content.append(c.text)
+                results.append(content)
+                methodUsed.append(3)
+                # print("loop 3")
 
-        dicti = {'asd': 'dfg', 'zcx': 'dh'}
-        r = json.dumps(resultedUrl2)
-        # works
-        # except (KeyError, Choice.DoesNotExist):
-        # # Redisplay the question voting form.
-        #     return render(request, 'polls/detail.html', {
-        #         'question': question,
-        #         'error_message': "You didn't select a choice.",
-        #     })
-        # else:
-        # selected_choice.votes += 1
-        # selected_choice.save()
-        # Always return an HttpResponseRedirect after successfully dealing
-        # with POST data. This prevents data from being posted twice if a
-        # user hits the Back button.
-        # return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
-        # somethingExtra = query + "abcd"
+        r = json.dumps(results, sort_keys=True)
         return Response(r)
