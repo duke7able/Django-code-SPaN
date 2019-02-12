@@ -76,8 +76,9 @@ class codespanview(APIView):
         headers = {'User-Agent': userAgent}
         query = request.POST['query']
         lang = request.POST['lang']
-        enteredInput = query + ' ' + lang
-        keywords = enteredInput.split(' ')
+        keywords = []
+        keywords.append(query)
+        keywords.append(lang)
         # for making less obviuos queries
         random.shuffle(keywords)
         resultedUrl2 = {}
